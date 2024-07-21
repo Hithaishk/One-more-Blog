@@ -1,31 +1,33 @@
-import "./post.scss";
-import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
-import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
-import TextsmsOutlinedIcon from "@mui/icons-material/TextsmsOutlined";
-import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import { Link } from "react-router-dom";
-import Comments from "../comments/Comments";
 import { useState } from "react";
-import moment from "moment";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
 import { useContext } from "react";
 import { AuthContext } from "../../context/authContext";
 import DOMPurify from "dompurify";
-
+import moment from "moment";
+import { Link } from "react-router-dom";
+import Comments from "../comments/Comments";
+import {
+  Card,
+  Button,
+  ButtonGroup,
+  Dropdown,
+  Image,
+} from "react-bootstrap";
+import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
+import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
+import TextsmsOutlinedIcon from "@mui/icons-material/TextsmsOutlined";
+import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 const Post = ({ post }) => {
   const [commentOpen, setCommentOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  // const [menuOpen, setMenuOpen] = useState(false);
 
   const { currentUser } = useContext(AuthContext);
 
-  const { isLoading, error, data } = useQuery(["likes", post.id], () =>
-    makeRequest.get("/likes?postId=" + post.id).then((res) => {
-      console.log(error);
-      return res.data;
-    })
+  const { isLoading, data } = useQuery(["likes", post.id], () =>
+    makeRequest.get("/likes?postId=" + post.id).then((res) => res.data)
   );
 
   const queryClient = useQueryClient();
@@ -37,18 +39,15 @@ const Post = ({ post }) => {
     },
     {
       onSuccess: () => {
-        // Invalidate and refetch
         queryClient.invalidateQueries(["likes"]);
       },
     }
   );
+
   const deleteMutation = useMutation(
-    (postId) => {
-      return makeRequest.delete("/posts/" + postId);
-    },
+    () => makeRequest.delete("/posts/" + post.id),
     {
       onSuccess: () => {
-        // Invalidate and refetch
         queryClient.invalidateQueries(["posts"]);
       },
     }
@@ -59,73 +58,89 @@ const Post = ({ post }) => {
   };
 
   const handleDelete = () => {
-    deleteMutation.mutate(post.id);
+    deleteMutation.mutate();
   };
 
   return (
-    <div className="post">
-      <div className="container">
-        
-        {/* <div className="content">
-          <p>{post.desc}</p>
-          <img src={"/upload/" + post.img} alt="" />
-        </div> */}
-        <div className="content">
-          <h1>{post.title}</h1> {/* Display the blog title */}
-          <div className="img-container">
-          <img src={"/upload/" + post.img} alt="" /> {/* Display the blog image */}
-        </div>
-
-          {/* <p>{post.desc}</p> Display the blog description */}
-          <p dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.desc) }} />
-          {/* <img src={"/upload/" + post.img} alt="" /> Display the blog image */}
-        </div>
-
-
-        <div className="user">  
-        </div>
-        <div className="info">
-        <div className="userInfo">
-            <img src={"/upload/"+post.profilePic} alt="" />
-            <div className="details">
+    <Card className="mb-3">
+      <Card.Body>
+        <div className="d-flex justify-content-between mb-3">
+          <div className="d-flex align-items-center">
+            <Image
+              src={"/upload/" + post.profilePic}
+              alt=""
+              className="rounded-circle me-2"
+              width={40}
+              height={40}
+            />
+            <div>
               <Link
                 to={`/profile/${post.userId}`}
-                style={{ textDecoration: "none", color: "inherit" }}
+                className="text-decoration-none text-dark"
               >
-                <span className="name">{post.name}</span>
+                <span className="fw-bold">{post.name}</span>
               </Link>
-              <span className="date">{moment(post.createdAt).fromNow()}</span>
+              <br />
+              <span className="text-muted">{moment(post.createdAt).fromNow()}</span>
             </div>
           </div>
-          <div className="item">
-            {isLoading ? (
-              "loading"
-            ) : data.includes(currentUser.id) ? (
-              <FavoriteOutlinedIcon
-                style={{ color: "red" }}
-                onClick={handleLike}
-              />
-            ) : (
-              <FavoriteBorderOutlinedIcon onClick={handleLike} />
-            )}
-            {data?.length} Likes
-          </div>
-          <div className="item" onClick={() => setCommentOpen(!commentOpen)}>
-            <TextsmsOutlinedIcon />
-            See Comments
-          </div>
-          <div className="item">
-            <ShareOutlinedIcon />
-            Share
-          </div>
-          <MoreHorizIcon onClick={() => setMenuOpen(!menuOpen)} />
-          {menuOpen && post.userId === currentUser.id && (
-            <button onClick={handleDelete}>delete</button>
+          {post.userId === currentUser.id && (
+            <Dropdown>
+              <Dropdown.Toggle variant="light" id="dropdown-basic">
+                <MoreHorizIcon />
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={handleDelete}>Delete</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
           )}
         </div>
+
+        <h1 className="mb-3">{post.title}</h1>
+
+        <div className="text-center mb-3">
+          <Image
+            src={"/upload/" + post.img}
+            alt=""
+            fluid
+            className="post-image img-fluid"
+            style={{ maxHeight: "300px", objectFit: "cover" }}
+          />
+        </div>
+
+        <p className="mb-3" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.desc) }} />
+
+        <div className="d-flex align-items-center">
+          <ButtonGroup>
+            {isLoading ? (
+              "Loading"
+            ) : (
+              <>
+                {data.includes(currentUser.id) ? (
+                  <Button variant="danger" onClick={handleLike}>
+                    <FavoriteOutlinedIcon style={{ color: "red" }} />
+                  </Button>
+                ) : (
+                  <Button variant="light" onClick={handleLike}>
+                    <FavoriteBorderOutlinedIcon />
+                  </Button>
+                )}
+                <Button variant="light" onClick={() => setCommentOpen(!commentOpen)}>
+                  <TextsmsOutlinedIcon />
+                </Button>
+                <Button variant="light">
+                  <ShareOutlinedIcon />
+                </Button>
+              </>
+            )}
+          </ButtonGroup>
+          <span className="ms-2">{data?.length} Likes</span>
+        </div>
+
         {commentOpen && <Comments postId={post.id} />}
-      </div>
-    </div>
+      </Card.Body>
+    </Card>
   );
 };
 

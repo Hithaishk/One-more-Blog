@@ -1,13 +1,13 @@
-
 import React, { useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-// import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import moment from "moment";
 import { makeRequest } from "../../axios";
 
-import "./Write.scss";
+import "bootstrap/dist/css/bootstrap.min.css";
+
+
 export const Write = () => {
   const state = useLocation().state;
   const [value, setValue] = useState(state?.title || "");
@@ -15,17 +15,8 @@ export const Write = () => {
   const [file, setFile] = useState(null);
   const [cat, setCat] = useState(state?.cat || "");
 
-  const navigate = useNavigate()
-  // const upload = async () => {
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append("file", file);
-  //     const res = await makeRequest.post("/upload", formData);
-  //     return res.data;
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // };
+  const navigate = useNavigate();
+
   const upload = async () => {
     try {
       const formData = new FormData();
@@ -42,12 +33,6 @@ export const Write = () => {
     const imgUrl = await upload();
 
     try {
-      // eq.body.title,
-      // req.body.desc,
-      // req.body.img,
-      // req.body.createdAt,
-      // userInfo.id,
-      // req.body.cat,
       state
         ? await makeRequest.put(`/posts/${state.id}`, {
             title,
@@ -55,7 +40,6 @@ export const Write = () => {
             img: file ? imgUrl : "",
             createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
             cat,
-
           })
         : await makeRequest.post(`/posts/`, {
             title,
@@ -64,122 +48,83 @@ export const Write = () => {
             createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
             cat,
           });
-            
-            
-          navigate("/")
+
+      navigate("/");
     } catch (err) {
       console.log(err);
     }
   };
 
   return (
-    <div className="add">
-      <div className="content">
-        <input
-          type="text"
-          placeholder="Title"
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <div className="editorContainer">
-          <ReactQuill
-            className="editor"
-            theme="snow"
-            value={value}
-            onChange={setValue}
-          />
-        </div>
-      </div>
-      <div className="menu">
-        <div className="item">
-          <h1>Publish</h1>
-          <span>
-            <b>Status: </b> Draft
-          </span>
-          <span>
-            <b>Visibility: </b> Public
-          </span>
-          <input
-            style={{ display: "none" }}
-            type="file"
-            id="file"
-            name=""
-            onChange={(e) => setFile(e.target.files[0])}
-          />
-          <label className="file" htmlFor="file">
-            Upload Image
-          </label>
-          <div className="buttons">
-            <button>Save as a draft</button>
-            <button onClick={handleClick}>Publish</button>
+    <div className="container mt-4">
+      <div className="row">
+        <div className="col-md-8">
+          <div className="form-group">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Title"
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <ReactQuill
+              className="editor"
+              theme="snow"
+              value={value}
+              onChange={setValue}
+            />
           </div>
         </div>
-        <div className="item">
-          <h1>Category</h1>
-          <div className="cat">
-            <input
-              type="radio"
-              checked={cat === "art"}
-              name="cat"
-              value="art"
-              id="art"
-              onChange={(e) => setCat(e.target.value)}
-            />
-            <label htmlFor="art">Art</label>
+        <div className="col-md-4">
+          <div className="card mb-4">
+            <div className="card-body">
+              <h5 className="card-title">Publish</h5>
+              <p>
+                <b>Status: </b> Draft
+              </p>
+              <p>
+                <b>Visibility: </b> Public
+              </p>
+              <input
+                style={{ display: "none" }}
+                type="file"
+                id="file"
+                onChange={(e) => setFile(e.target.files[0])}
+              />
+              <label className="btn btn-outline-secondary btn-sm" htmlFor="file">
+                Upload Image
+              </label>
+              <div className="mt-2">
+                <button className="btn btn-outline-secondary btn-sm mr-2">
+                  Save as a draft
+                </button>
+                <button className="btn btn-primary btn-sm" onClick={handleClick}>
+                  Publish
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="cat">
-            <input
-              type="radio"
-              checked={cat === "science"}
-              name="cat"
-              value="science"
-              id="science"
-              onChange={(e) => setCat(e.target.value)}
-            />
-            <label htmlFor="science">Science</label>
-          </div>
-          <div className="cat">
-            <input
-              type="radio"
-              checked={cat === "technology"}
-              name="cat"
-              value="technology"
-              id="technology"
-              onChange={(e) => setCat(e.target.value)}
-            />
-            <label htmlFor="technology">Technology</label>
-          </div>
-          <div className="cat">
-            <input
-              type="radio"
-              checked={cat === "cinema"}
-              name="cat"
-              value="cinema"
-              id="cinema"
-              onChange={(e) => setCat(e.target.value)}
-            />
-            <label htmlFor="cinema">Cinema</label>
-          </div>
-          <div className="cat">
-            <input
-              type="radio"
-              checked={cat === "design"}
-              name="cat"
-              value="design"
-              id="design"
-              onChange={(e) => setCat(e.target.value)}
-            />
-            <label htmlFor="design">Design</label>
-          </div>
-          <div className="cat">
-            <input
-              type="radio"
-              checked={cat === "food"}
-              name="cat"
-              value="food"
-              id="food"
-              onChange={(e) => setCat(e.target.value)}
-            />
-            <label htmlFor="food">Food</label>
+          <div className="card">
+            <div className="card-body">
+              <h5 className="card-title">Category</h5>
+              {["art", "science", "technology", "cinema", "design", "food"].map((category) => (
+                <div className="form-check" key={category}>
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    checked={cat === category}
+                    name="cat"
+                    value={category}
+                    id={category}
+                    onChange={(e) => setCat(e.target.value)}
+                  />
+                  <label className="form-check-label" htmlFor={category}>
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </label>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -187,4 +132,4 @@ export const Write = () => {
   );
 };
 
- export default Write;
+export default Write;

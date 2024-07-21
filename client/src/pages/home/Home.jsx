@@ -1,14 +1,13 @@
-// import Stories from "../../components/stories/Stories"
-import Posts from "../../components/posts/Posts"
+import Posts from "../../components/posts/Posts";
+import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 
-import "./home.scss"
 
 const Home = () => {
   return (
-    <div className="home">
-      <Posts/>
+    <div className="home container">
+      <Posts />
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

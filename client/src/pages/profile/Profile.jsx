@@ -1,131 +1,7 @@
-// import "./profile.scss";
-// import FacebookTwoToneIcon from "@mui/icons-material/FacebookTwoTone";
-// import LinkedInIcon from "@mui/icons-material/LinkedIn";
-// import InstagramIcon from "@mui/icons-material/Instagram";
-// import PinterestIcon from "@mui/icons-material/Pinterest";
-// import TwitterIcon from "@mui/icons-material/Twitter";
-// import PlaceIcon from "@mui/icons-material/Place";
-// import LanguageIcon from "@mui/icons-material/Language";
-// import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-// import MoreVertIcon from "@mui/icons-material/MoreVert";
-// import Posts from "../../components/posts/Posts";
-// import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-// import { makeRequest } from "../../axios";
-// import { useLocation } from "react-router-dom";
-// import { useContext } from "react";
-// import { AuthContext } from "../../context/authContext";
-// import Update from "../../components/update/Update";
-// import { useState } from "react";
-
-// const Profile = () => {
-//   const [openUpdate, setOpenUpdate] = useState(false);
-//   const { currentUser } = useContext(AuthContext);
-
-//   const userId = parseInt(useLocation().pathname.split("/")[2]);
-
-//   const { isLoading, error, data } = useQuery(["user"], () =>
-//     makeRequest.get("/users/find/" + userId).then((res) => {
-//       return res.data;
-//     })
-//   );
-
-//   const { isLoading: rIsLoading, data: relationshipData } = useQuery(
-//     ["relationship"],
-//     () =>
-//       makeRequest.get("/relationships?followedUserId=" + userId).then((res) => {
-//         return res.data;
-//       })
-//   );
-
-//   const queryClient = useQueryClient();
-
-//   const mutation = useMutation(
-//     (following) => {
-//       if (following)
-//         return makeRequest.delete("/relationships?userId=" + userId);
-//       return makeRequest.post("/relationships", { userId });
-//     },
-//     {
-//       onSuccess: () => {
-//         // Invalidate and refetch
-//         queryClient.invalidateQueries(["relationship"]);
-//       },
-//     }
-//   );
-
-//   const handleFollow = () => {
-//     mutation.mutate(relationshipData.includes(currentUser.id));
-//   };
-
-//   return (
-//     <div className="profile">
-//       {isLoading ? (
-//         "loading"
-//       ) : (
-//         <>
-//           <div className="images">
-//             <img src={"/upload/"+data.coverPic} alt="" className="cover" />
-//             <img src={"/upload/"+data.profilePic} alt="" className="profilePic" />
-//           </div>
-//           <div className="profileContainer">
-//             <div className="uInfo">
-//               <div className="left">
-//                 <a href="http://facebook.com">
-//                   <FacebookTwoToneIcon fontSize="large" />
-//                 </a>
-//                 <a href="http://facebook.com">
-//                   <InstagramIcon fontSize="large" />
-//                 </a>
-//                 <a href="http://facebook.com">
-//                   <TwitterIcon fontSize="large" />
-//                 </a>
-//                 <a href="http://facebook.com">
-//                   <LinkedInIcon fontSize="large" />
-//                 </a>
-//                 <a href="http://facebook.com">
-//                   <PinterestIcon fontSize="large" />
-//                 </a>
-//               </div>
-//               <div className="center">
-//                 <span>{data.name}</span>
-//                 <div className="info">
-//                   <div className="item">
-//                     <PlaceIcon />
-//                     <span>{data.city}</span>
-//                   </div>
-//                   <div className="item">
-//                     <LanguageIcon />
-//                     <span>{data.website}</span>
-//                   </div>
-//                 </div>
-//                 {rIsLoading ? (
-//                   "loading"
-//                 ) : userId === currentUser.id ? (
-//                   <button onClick={() => setOpenUpdate(true)}>update</button>
-//                 ) : (
-//                   <button onClick={handleFollow}>
-//                     {relationshipData.includes(currentUser.id)
-//                       ? "Following"
-//                       : "Follow"}
-//                   </button>
-//                 )}
-//               </div>
-//               <div className="right">
-//                 <EmailOutlinedIcon />
-//                 <MoreVertIcon />
-//               </div>
-//             </div>
-//             <Posts userId={userId} />
-//           </div>
-//         </>
-//       )}
-//       {openUpdate && <Update setOpenUpdate={setOpenUpdate} user={data} />}
-//     </div>
-//   );
-// };
-
-// export default Profile;
-import "./profile.scss";
+import { useContext, useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { AuthContext } from "../../context/authContext";
+import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import FacebookTwoToneIcon from "@mui/icons-material/FacebookTwoTone";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import InstagramIcon from "@mui/icons-material/Instagram";
@@ -136,19 +12,13 @@ import LanguageIcon from "@mui/icons-material/Language";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Posts from "../../components/posts/Posts";
-import { useLocation } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../../context/authContext";
 import Update from "../../components/update/Update";
-// import axios from "axios";
 import { makeRequest } from "../../axios";
-
 
 const Profile = () => {
   const [openUpdate, setOpenUpdate] = useState(false);
   const { currentUser } = useContext(AuthContext);
   const [user, setUser] = useState(null);
-
   const userId = parseInt(useLocation().pathname.split("/")[2]);
 
   useEffect(() => {
@@ -166,60 +36,99 @@ const Profile = () => {
   return (
     <div className="profile">
       {user ? (
-        <>
-          <div className="images">
-            <img src={"/upload/" + user.coverPic} alt="" className="cover" />
-            <img
-              src={"/upload/" + user.profilePic}
-              alt=""
-              className="profilePic"
-            />
-          </div>
-          <div className="profileContainer">
-            <div className="uInfo">
-              <div className="left">
-                <a href="http://facebook.com">
-                  <FacebookTwoToneIcon fontSize="large" />
-                </a>
-                <a href="http://facebook.com">
-                  <InstagramIcon fontSize="large" />
-                </a>
-                <a href="http://facebook.com">
-                  <TwitterIcon fontSize="large" />
-                </a>
-                <a href="http://facebook.com">
-                  <LinkedInIcon fontSize="large" />
-                </a>
-                <a href="http://facebook.com">
-                  <PinterestIcon fontSize="large" />
-                </a>
-              </div>
-              <div className="center">
-                <span>{user.name}</span>
-                <div className="info">
-                  <div className="item">
-                    <PlaceIcon />
-                    <span>{user.city}</span>
-                  </div>
-                  <div className="item">
-                    <LanguageIcon />
-                    <span>{user.website}</span>
-                  </div>
+        <Container className="py-4">
+          <Card className="shadow-sm rounded-3">
+            <div className="image-cover position-relative">
+              <Card.Img
+                src={`/upload/${user.coverPic}`}
+                alt=""
+                className="cover img-fluid"
+                style={{ maxHeight: "300px", objectFit: "cover" }}
+              />
+
+              <div
+                className="profile-photo position-absolute bottom-0 start-50 translate-middle-x"
+                style={{ transform: "translateY(75%)" }}
+              >
+                <div
+                  className="profile-circle bg-white rounded-circle overflow-hidden d-flex justify-content-center align-items-center"
+                  style={{
+                    width: "160px",
+                    height: "160px",
+                    padding: "5px",
+                    border: "2px solid white",
+                  }}
+                >
+                  <Card.Img
+                    src={`/upload/${user.profilePic}`}
+                    alt=""
+                    className="profilePic rounded-circle img-fluid"
+                    style={{
+                      width: "150px",
+                      height: "150px",
+                      objectFit: "cover",
+                    }}
+                  />
                 </div>
-                {userId === currentUser.id && (
-                  <button onClick={() => setOpenUpdate(true)}>Update</button>
-                )}
-              </div>
-              <div className="right">
-                <EmailOutlinedIcon />
-                <MoreVertIcon />
               </div>
             </div>
-            <Posts userId={userId} />
-          </div>
-        </>
+
+            <Card.Body>
+              <Row className="align-items-center mb-4">
+                <Col xs={12} md={4} className="text-center mb-3 mb-md-0">
+                  <div className="left">
+                    <a href="http://facebook.com">
+                      <FacebookTwoToneIcon fontSize="large" />
+                    </a>
+                    <a href="http://instagram.com">
+                      <InstagramIcon fontSize="large" />
+                    </a>
+                    <a href="http://twitter.com">
+                      <TwitterIcon fontSize="large" />
+                    </a>
+                    <a href="http://linkedin.com">
+                      <LinkedInIcon fontSize="large" />
+                    </a>
+                    <a href="http://pinterest.com">
+                      <PinterestIcon fontSize="large" />
+                    </a>
+                  </div>
+                </Col>
+                <Col xs={12} md={4} className="text-center">
+                  <div className="center">
+                    <h1 className="mb-2">{user.name}</h1>
+                    <div className="info d-flex flex-column align-items-center">
+                      <div className="item d-flex align-items-center mb-1">
+                        <PlaceIcon className="me-1" />
+                        <span>{user.city}</span>
+                      </div>
+                      <div className="item d-flex align-items-center">
+                        <LanguageIcon className="me-1" />
+                        <span>{user.website}</span>
+                      </div>
+                    </div>
+                  </div>
+                </Col>
+                <Col xs={12} md={4} className="text-center">
+                  <div className="right">
+                    <EmailOutlinedIcon className="me-2" />
+                    <MoreVertIcon />
+                  </div>
+                </Col>
+              </Row>
+              {userId === currentUser.id && (
+                <div className="text-center">
+                  <Button variant="primary" onClick={() => setOpenUpdate(true)}>
+                    Update Profile
+                  </Button>
+                </div>
+              )}
+              <Posts userId={userId} />
+            </Card.Body>
+          </Card>
+        </Container>
       ) : (
-        "Loading..."
+        <div className="text-center py-5">Loading...</div>
       )}
       {openUpdate && <Update setOpenUpdate={setOpenUpdate} user={user} />}
     </div>

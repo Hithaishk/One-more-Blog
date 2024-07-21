@@ -1,10 +1,10 @@
-
-// export default Update;
 import { useState } from "react";
 import { makeRequest } from "../../axios";
-import "./update.scss";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 
 const Update = ({ setOpenUpdate, user }) => {
   const [cover, setCover] = useState(null);
@@ -14,11 +14,9 @@ const Update = ({ setOpenUpdate, user }) => {
     password: user.password,
     name: user.name,
     city: user.city,
-    
   });
 
   const upload = async (file) => {
-    console.log(file);
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -41,8 +39,8 @@ const Update = ({ setOpenUpdate, user }) => {
     },
     {
       onSuccess: () => {
-        // Invalidate and refetch
         queryClient.invalidateQueries(["user"]);
+        setOpenUpdate(false); // Close the modal after update
       },
     }
   );
@@ -50,102 +48,100 @@ const Update = ({ setOpenUpdate, user }) => {
   const handleClick = async (e) => {
     e.preventDefault();
 
-    //TODO: find a better way to get image URL
-    
     let coverUrl;
     let profileUrl;
     coverUrl = cover ? await upload(cover) : user.coverPic;
     profileUrl = profile ? await upload(profile) : user.profilePic;
     
     mutation.mutate({ ...texts, coverPic: coverUrl, profilePic: profileUrl });
-    setOpenUpdate(false);
     setCover(null);
     setProfile(null);
   };
 
   return (
-    <div className="update">
-      <div className="wrapper">
-        <h1>Update Your Profile</h1>
-        <form>
-          <div className="files">
-            <label htmlFor="cover">
-              <span>Cover Picture</span>
-              <div className="imgContainer">
-                <img
-                  src={
-                    cover
-                      ? URL.createObjectURL(cover)
-                      : "/upload/" + user.coverPic
-                  }
-                  alt=""
-                />
-                <CloudUploadIcon className="icon" />
-              </div>
-            </label>
-            <input
+    <Modal show={true} onHide={() => setOpenUpdate(false)}>
+      <Modal.Header closeButton>
+        <Modal.Title>Update Your Profile</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form>
+          <Form.Group className="mb-3">
+            <Form.Label>Cover Picture</Form.Label>
+            <div className="imgContainer position-relative">
+              <img
+                src={cover ? URL.createObjectURL(cover) : "/upload/" + user.coverPic}
+                alt=""
+                className="img-fluid rounded"
+              />
+              <CloudUploadIcon className="icon position-absolute bottom-0 end-0 m-2 text-white bg-dark rounded-circle cursor-pointer" />
+            </div>
+            <Form.Control
               type="file"
-              id="cover"
-              style={{ display: "none" }}
               onChange={(e) => setCover(e.target.files[0])}
             />
-            <label htmlFor="profile">
-              <span>Profile Picture</span>
-              <div className="imgContainer">
-                <img
-                  src={
-                    profile
-                      ? URL.createObjectURL(profile)
-                      : "/upload/" + user.profilePic
-                  }
-                  alt=""
-                />
-                <CloudUploadIcon className="icon" />
-              </div>
-            </label>
-            <input
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Profile Picture</Form.Label>
+            <div className="imgContainer position-relative">
+              <img
+                src={profile ? URL.createObjectURL(profile) : "/upload/" + user.profilePic}
+                alt=""
+                className="img-fluid rounded"
+              />
+              <CloudUploadIcon className="icon position-absolute bottom-0 end-0 m-2 text-white bg-dark rounded-circle cursor-pointer" />
+            </div>
+            <Form.Control
               type="file"
-              id="profile"
-              style={{ display: "none" }}
               onChange={(e) => setProfile(e.target.files[0])}
             />
-          </div>
-          <label>Email</label>
-          <input
-            type="text"
-            value={texts.email}
-            name="email"
-            onChange={handleChange}
-          />
-          <label>Password</label>
-          <input
-            type="text"
-            value={texts.password}
-            name="password"
-            onChange={handleChange}
-          />
-          <label>Name</label>
-          <input
-            type="text"
-            value={texts.name}
-            name="name"
-            onChange={handleChange}
-          />
-          <label>Country / City</label>
-          <input
-            type="text"
-            name="city"
-            value={texts.city}
-            onChange={handleChange}
-          />
-          
-          <button onClick={handleClick}>Update</button>
-        </form>
-        <button className="close" onClick={() => setOpenUpdate(false)}>
-          close
-        </button>
-      </div>
-    </div>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Email</Form.Label>
+            <Form.Control
+              type="text"
+              value={texts.email}
+              name="email"
+              onChange={handleChange}
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="text"
+              value={texts.password}
+              name="password"
+              onChange={handleChange}
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Name</Form.Label>
+            <Form.Control
+              type="text"
+              value={texts.name}
+              name="name"
+              onChange={handleChange}
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Country / City</Form.Label>
+            <Form.Control
+              type="text"
+              name="city"
+              value={texts.city}
+              onChange={handleChange}
+            />
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => setOpenUpdate(false)}>
+          Close
+        </Button>
+        <Button variant="primary" onClick={handleClick}>
+          Update
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 };
 
